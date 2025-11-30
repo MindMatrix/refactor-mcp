@@ -99,6 +99,54 @@ dotnet format
 - `metrics://` - Code metrics analysis
 - `summary://` - File summaries with method bodies omitted
 
+## Analysis Tools
+
+The `Tools/Analysis/` folder contains tools for discovering refactoring opportunities:
+
+### SearchSymbols
+Search for symbols matching a wildcard pattern across the solution.
+```bash
+dotnet run -- --json search-symbols '{"pattern":"*Service","solutionPath":"./RefactorMCP.sln","symbolTypes":"class,interface"}'
+```
+- Supports `*` (any sequence) and `?` (single character) wildcards
+- Filter by symbol type: class, interface, method, property, field, event, enum, struct, record, delegate
+- Case-insensitive by default
+
+### FindReferences
+Find all references to a symbol in the solution.
+```bash
+dotnet run -- --json find-references '{"symbolName":"ComplexityWalker","solutionPath":"./RefactorMCP.sln"}'
+```
+- Shows definition and all usages
+- Includes context lines around each reference
+
+### GetSymbolInfo
+Get detailed information about a symbol.
+```bash
+dotnet run -- --json get-symbol-info '{"symbolName":"ExtractMethodTool","solutionPath":"./RefactorMCP.sln"}'
+```
+- Shows kind, accessibility, namespace, containing type
+- For types: base types, interfaces, members
+- For methods: parameters, return type, modifiers
+
+### AnalyzeComplexity
+Find high-complexity methods as refactoring candidates.
+```bash
+dotnet run -- --json analyze-complexity '{"solutionPath":"./RefactorMCP.sln","threshold":7,"limit":20}'
+```
+- Uses cyclomatic complexity metric
+- Groups by complexity level (high >10, medium 7-10)
+- Includes refactoring suggestions
+
+### AnalyzeDependencies
+Analyze project dependencies and namespace usage.
+```bash
+dotnet run -- --json analyze-dependencies '{"solutionPath":"./RefactorMCP.sln","projectName":"RefactorMCP.ConsoleApp"}'
+```
+- Shows project and package references
+- Lists most-used namespaces
+- Reports symbol distribution (public/internal)
+
 ## Common Development Tasks
 
 ### Debug a Specific Refactoring
