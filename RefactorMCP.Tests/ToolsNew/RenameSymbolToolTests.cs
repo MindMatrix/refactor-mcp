@@ -49,7 +49,7 @@ public class Sample
 
         Assert.Contains("Successfully renamed", result);
         var fileContent = await File.ReadAllTextAsync(testFile);
-        Assert.Equal(expectedCode, fileContent.Replace("\r\n", "\n"));
+        TestUtilities.AssertCodeEqual(expectedCode, fileContent);
     }
 
     [Fact]

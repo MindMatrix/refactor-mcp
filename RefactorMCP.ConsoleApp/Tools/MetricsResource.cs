@@ -29,7 +29,7 @@ public static class MetricsResource
                 }
             }
             var json = JsonSerializer.Serialize(classes, new JsonSerializerOptions { WriteIndented = true });
-            return new TextResourceContents { Text = json };
+            return new TextResourceContents { Uri = $"metrics://{path}", Text = json };
         }
 
         var className = (string?)null;
@@ -87,7 +87,7 @@ public static class MetricsResource
         }
 
         var jsonText = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
-        return new TextResourceContents { Text = jsonText };
+        return new TextResourceContents { Uri = $"metrics://{path}", Text = jsonText };
     }
 
     private static async Task<JsonDocument> GetFileMetricsJson(string solutionPath, string filePath)

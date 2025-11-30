@@ -11,15 +11,25 @@ public class IntroduceParameterToolTests : RefactorMCP.Tests.TestBase
     [Fact]
     public async Task IntroduceParameter_ValidExpression_ReturnsSuccess()
     {
+        const string initialCode = """
+public class Sample
+{
+    public string FormatResult(int value)
+    {
+        return $"Result: {value * 2 + 10}";
+    }
+}
+""";
+
         await LoadSolutionTool.LoadSolution(SolutionPath, null, CancellationToken.None);
         var testFile = Path.Combine(TestOutputPath, "IntroduceParameter.cs");
-        await TestUtilities.CreateTestFile(testFile, TestUtilities.GetSampleCodeForIntroduceVariable());
+        await TestUtilities.CreateTestFile(testFile, initialCode);
 
         var result = await IntroduceParameterTool.IntroduceParameter(
             SolutionPath,
             testFile,
             "FormatResult",
-            "1:48-1:61",
+            "5:24-5:37",
             "processedValue");
 
         Assert.Contains("Successfully introduced parameter", result);

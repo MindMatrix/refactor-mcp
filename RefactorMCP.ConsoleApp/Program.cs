@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
+using RefactorMCP.ConsoleApp.Infrastructure;
 using System;
 using System.ComponentModel;
 using System.Reflection;
@@ -24,6 +25,14 @@ if (args.Length > 0 && args[0] == "--json")
     return;
 }
 
+// Check for SSE mode
+if (args.Length > 0 && args[0] == "--sse")
+{
+    await RunSseMode(args);
+    return;
+}
+
+// Default: stdio mode
 var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.AddConsole(consoleLogOptions =>
 {
@@ -34,11 +43,45 @@ builder.Logging.AddConsole(consoleLogOptions =>
 builder.Services
     .AddMcpServer()
     .WithStdioServerTransport()
-    .WithToolsFromAssembly()
+    .WithToolsFromAssemblyWithLocking()
     .WithResourcesFromAssembly()
     .WithPromptsFromAssembly();
 
 await builder.Build().RunAsync();
+
+static async Task RunSseMode(string[] args)
+{
+    // Parse port from args (--sse [port])
+    var port = 5000;
+    if (args.Length > 1 && int.TryParse(args[1], out var customPort))
+    {
+        port = customPort;
+    }
+
+    var builder = WebApplication.CreateBuilder();
+    builder.Logging.AddConsole();
+
+    builder.Services
+        .AddMcpServer()
+        .WithHttpTransport()
+        .WithToolsFromAssemblyWithLocking()
+        .WithResourcesFromAssembly()
+        .WithPromptsFromAssembly();
+
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenLocalhost(port);
+    });
+
+    var app = builder.Build();
+
+    app.MapMcp();
+
+    Console.WriteLine($"MCP Server running on http://localhost:{port}/sse");
+    Console.WriteLine("Press Ctrl+C to stop.");
+
+    await app.RunAsync();
+}
 
 static async Task RunJsonMode(string[] args)
 {

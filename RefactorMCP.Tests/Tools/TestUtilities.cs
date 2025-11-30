@@ -2,10 +2,28 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
+using Xunit;
+
 namespace RefactorMCP.Tests;
 
 public static class TestUtilities
 {
+    /// <summary>
+    /// Normalizes line endings to LF (\n) for consistent comparison across platforms.
+    /// </summary>
+    public static string NormalizeLineEndings(string text)
+    {
+        return text.Replace("\r\n", "\n").Replace("\r", "\n");
+    }
+
+    /// <summary>
+    /// Asserts that two code strings are equal after normalizing line endings.
+    /// </summary>
+    public static void AssertCodeEqual(string expected, string actual)
+    {
+        Assert.Equal(NormalizeLineEndings(expected), NormalizeLineEndings(actual));
+    }
+
     public static string GetSolutionPath()
     {
         var currentDir = Directory.GetCurrentDirectory();

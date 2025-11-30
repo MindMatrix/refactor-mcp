@@ -10,8 +10,9 @@ public class SummaryResourceTests : TestBase
     public async Task GetSummary_OmitsMethodBodies()
     {
         var result = await SummaryResources.GetSummary(ExampleFilePath, CancellationToken.None);
-        Assert.Contains("public int Calculate(int a, int b)\n        {}", result);
-        Assert.DoesNotContain("throw new ArgumentException", result);
+        var normalized = TestUtilities.NormalizeLineEndings(result);
+        Assert.Contains("public int Calculate(int a, int b)\n        {}", normalized);
+        Assert.DoesNotContain("throw new ArgumentException", normalized);
     }
 
     [Fact]
